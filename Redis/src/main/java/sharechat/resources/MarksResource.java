@@ -9,7 +9,9 @@ import org.eclipse.jetty.http.HttpStatus;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import sharechat.dto.MarksDetails;
+import sharechat.service.MarksService;
 import sharechat.util.JsonUtil;
+import sharechat.util.RedisTables;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
@@ -28,12 +30,12 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class MarksResource {
 
-    private final JedisPool jedisPool;
+    private final MarksService marksService;
 
     @Inject
-    public MarksResource(JedisPool jedisPool)
+    public MarksResource(MarksService marksService)
     {
-        this.jedisPool = jedisPool;
+        this.marksService = marksService;
     }
 
 
@@ -42,16 +44,12 @@ public class MarksResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiResponses(value = {
             @ApiResponse(code = HttpStatus.OK_200, message = "Updated Marks Details",
-                    response = MarksDetails.class),
-            @ApiResponse(code = HttpStatus.FORBIDDEN_403, message = "You are not authorised to access this  data")
+                    response = MarksDetails.class)
     })
     public Response updateMarks(@ApiParam("marks_details") MarksDetails marksDetails) {
 
-        Jedis jedis = jedisPool.getResource();
-
-        jedis.zadd("rankings", marksDetails.getScore(), marksDetails.getStudentId());
 
         return Response.status(Response.Status.OK)
-                .entity(marksDetails).build();
+                .entity(marksService.createOrUpdate(marksDetails)).build();
     }
 }

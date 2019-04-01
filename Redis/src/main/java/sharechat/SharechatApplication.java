@@ -15,6 +15,7 @@ public class SharechatApplication extends Service<ApplicationConfiguration> {
         new SharechatApplication().run(args);
     }
 
+
     @Override
     public void initialize(Bootstrap<ApplicationConfiguration> bootstrap)
     {
