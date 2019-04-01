@@ -5,7 +5,10 @@ import com.google.inject.Provides;
 import com.yammer.dropwizard.config.Configuration;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-import sharechat.ApplicationConfiguration;
+import sharechat.service.MarksService;
+import sharechat.service.StudentService;
+import sharechat.service.impl.MarksServiceImpl;
+import sharechat.service.impl.StudentServiceImpl;
 
 /**
  * Created by amit_k on 4/1/19.
@@ -13,8 +16,10 @@ import sharechat.ApplicationConfiguration;
 public class ApplicationModule extends AbstractModule{
 
     @Override
-    protected void configure()
-    {
+    protected void configure() {
+
+        bind(StudentService.class).to(StudentServiceImpl.class);
+        bind(MarksService.class).to(MarksServiceImpl.class);
 
     }
 

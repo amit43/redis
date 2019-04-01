@@ -7,7 +7,10 @@ import io.swagger.annotations.ApiResponses;
 import org.eclipse.jetty.http.HttpStatus;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Tuple;
 import sharechat.dto.Rank;
+import sharechat.service.StudentService;
+import sharechat.util.RedisTables;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -18,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by amit_k on 4/1/19.
@@ -26,12 +30,12 @@ import java.util.List;
 @Path("v0.1/student/")
 public class StudentResource {
 
-    private final JedisPool jedisPool;
+    StudentService studentService;
 
     @Inject
-    public StudentResource(JedisPool jedisPool)
+    public StudentResource(StudentService studentService)
     {
-        this.jedisPool = jedisPool;
+        this.studentService = studentService;
     }
 
 
@@ -39,38 +43,30 @@ public class StudentResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiResponses(value = {
             @ApiResponse(code = HttpStatus.OK_200, message = "Get Rank for student",
-                    response = Rank.class),
-            @ApiResponse(code = HttpStatus.FORBIDDEN_403, message = "You are not authorised to access this  data")
+                    response = Rank.class)
     })
     @Path("{student_id}/")
     public Response getRank(@PathParam("student_id") String studentId) {
 
-        Jedis jedis = jedisPool.getResource();
-
-        // Rank Object
-        Rank rank = new Rank(studentId, jedis.zrevrank("rankings", studentId));
         return Response.status(Response.Status.OK)
-                .entity(rank).build();
+                .entity(studentService.getStudentRank(studentId)).build();
     }
+
+
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiResponses(value = {
             @ApiResponse(code = HttpStatus.OK_200, message = "Get Leaderboard",
-                    response = Rank.class, responseContainer = "List"),
-            @ApiResponse(code = HttpStatus.FORBIDDEN_403, message = "You are not authorised to access this  data")
+                    response = Rank.class, responseContainer = "List")
     })
     @Path("leaderboard/")
     public Response getLeaderboard(@QueryParam("offset") Integer offset,
                                    @QueryParam("limit") Integer limit) {
 
-        Jedis jedis = jedisPool.getResource();
 
-
-        //List of Rank Object
-        // TODO AMIT: Fetch Leaderboard
-        List<Rank> leaderboard = new ArrayList<Rank>();
         return Response.status(Response.Status.OK)
-                .entity(leaderboard).build();
+                .entity(studentService.getLeaderboard(offset, limit))
+                .build();
     }
 }

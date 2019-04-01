@@ -6,6 +6,6 @@ redis:
   port: 6379
 
 swagger:
-  resourcePackage: sharechat.resources
+  resourcePackage: sharechat
   schemes:
-    - htttp
+    - htttps
